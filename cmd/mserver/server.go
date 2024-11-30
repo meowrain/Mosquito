@@ -8,5 +8,7 @@ func main() {
 	mlogger.InitLogger()
 
 	server := mnet.NewServer("Mosquito")
+	//添加路由
+	server.AddRouter(&mnet.BaseRouter{})
 	server.Serve()
 }
