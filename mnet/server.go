@@ -40,13 +40,15 @@ func (server *Server) Start() {
 		}
 		MLogger.Info(fmt.Sprintf("Accepted connection from %s", conn.RemoteAddr()))
 		go func() {
-			buf := make([]byte, 1024)
-			cnt, err := conn.Read(buf)
-			if err != nil {
-				MLogger.Error(fmt.Sprintf("receive from client failed: %v", err))
-			}
-			if _, err := conn.Write(buf[:cnt]); err != nil {
-				MLogger.Error(fmt.Sprintf("send to client failed: %v", err))
+			for {
+				buf := make([]byte, 1024)
+				cnt, err := conn.Read(buf)
+				if err != nil {
+					MLogger.Error(fmt.Sprintf("receive from client failed: %v", err))
+				}
+				if _, err := conn.Write(buf[:cnt]); err != nil {
+					MLogger.Error(fmt.Sprintf("send to client failed: %v", err))
+				}
 			}
 		}()
 	}
