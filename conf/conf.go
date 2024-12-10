@@ -13,7 +13,7 @@ type AppConfiguration struct {
 	Name           string `yaml:"name"`
 	Version        string `yaml:"version"`
 	Host           string `yaml:"host"`
-	Port           int    `yaml:"port"`
+	Port           uint   `yaml:"port"`
 	MaxConnections int    `yaml:"maxConnections"`
 	MaxPackageSize int    `yaml:"maxPackageSize"`
 }
@@ -21,7 +21,7 @@ type AppConfiguration struct {
 var GlobalConf GlobalConfiguration
 
 func (g *GlobalConfiguration) Load() error {
-	confContent, err := os.ReadFile("config.yaml")
+	confContent, err := os.ReadFile("conf/config.yaml")
 	if err != nil {
 		return err
 	}

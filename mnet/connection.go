@@ -3,6 +3,7 @@ package mnet
 import (
 	"fmt"
 	"io"
+	"mosquito/conf"
 	"mosquito/miface"
 	"mosquito/mlogger"
 	"net"
@@ -41,7 +42,7 @@ func (c *Connection) StartReader() {
 	mlogger.MLogger.Info(fmt.Sprintf("Starting reader for connection id %d,received connection from %v\n", c.GetConnectionID(), c.GetTcpConnection()))
 	defer c.Stop()
 	for {
-		buf := make([]byte, 1024)
+		buf := make([]byte, conf.GlobalConf.App.MaxPackageSize)
 		cnt, err := c.Conn.Read(buf)
 		if err != nil {
 			if err == io.EOF {

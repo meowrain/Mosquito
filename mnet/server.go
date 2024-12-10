@@ -2,6 +2,7 @@ package mnet
 
 import (
 	"fmt"
+	"mosquito/conf"
 	"mosquito/miface"
 	. "mosquito/mlogger"
 	"net"
@@ -11,6 +12,7 @@ import (
 // Server IServer的接口实现
 type Server struct {
 	Name      string         //服务器的名称
+	Version   string         //服务器版本
 	IPVersion string         //服务器绑定的版本
 	IP        string         //服务器监听的ip
 	Port      uint           //服务器监听的端口
@@ -18,7 +20,7 @@ type Server struct {
 }
 
 func (server *Server) Start() {
-	MLogger.Info(fmt.Sprintf("Starting server %s on %s:%d", server.Name, server.IP, server.Port))
+	MLogger.Info(fmt.Sprintf("Starting server %s-%s on %s:%d", server.Name, server.Version, server.IP, server.Port))
 	go func() {
 
 		//获取TCP ADDR
@@ -72,8 +74,9 @@ func NewServer(name string) miface.IServer {
 	s := &Server{
 		Name:      name,
 		IPVersion: "tcp4",
-		IP:        "0.0.0.0",
-		Port:      8099,
+		Version:   conf.GlobalConf.App.Version,
+		IP:        conf.GlobalConf.App.Host,
+		Port:      conf.GlobalConf.App.Port,
 		Router:    nil,
 	}
 	return s
