@@ -15,7 +15,7 @@ type AppConfiguration struct {
 	Host           string `yaml:"host"`
 	Port           uint   `yaml:"port"`
 	MaxConnections int    `yaml:"maxConnections"`
-	MaxPackageSize int    `yaml:"maxPackageSize"`
+	MaxPackageSize uint32 `yaml:"maxPackageSize"`
 }
 
 var GlobalConf GlobalConfiguration
