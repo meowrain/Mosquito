@@ -14,7 +14,6 @@ func (br *BaseRouter) PreHandle(request miface.IRequest) {
 }
 
 func (br *BaseRouter) Handle(request miface.IRequest) {
-
 }
 
 func (br *BaseRouter) PostHandle(request miface.IRequest) {

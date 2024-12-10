@@ -1,9 +1,8 @@
 package mnet
 
 import (
+	"errors"
 	"fmt"
-	"io"
-	"mosquito/conf"
 	"mosquito/miface"
 	"mosquito/mlogger"
 	"net"
@@ -42,21 +41,37 @@ func (c *Connection) StartReader() {
 	mlogger.MLogger.Info(fmt.Sprintf("Starting reader for connection id %d,received connection from %v\n", c.GetConnectionID(), c.GetTcpConnection()))
 	defer c.Stop()
 	for {
-		buf := make([]byte, conf.GlobalConf.App.MaxPackageSize)
-		cnt, err := c.Conn.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				mlogger.MLogger.Info(fmt.Sprintf("Connection %v has been closed.", c.GetConnectionID()))
-				return
-			}
-			mlogger.MLogger.Error(fmt.Sprintf("Error reading from connection id %d: %s\n", c.ConnID, err.Error()))
-			continue
+		//创建数据包对象
+		dp := NewDataPack()
+		//读取包头 包括id和数据长度
+		headData := make([]byte, dp.GetHeadLen())
+		if _, err := c.Conn.Read(headData); err != nil {
+			break
 		}
-		// 得到Request
+		//把包头信息解包到message结构体中
+		message, err := dp.Unpack(headData)
+		if err != nil {
+			mlogger.MLogger.Error(err.Error())
+			break
+		}
+		//从message中拿到包头大小
+		bodyLen := message.GetMsgLen()
+		//读取客户端发送的data到bodyData切片中,如果数据长度>0就可以存了
+		if bodyLen > 0 {
+			bodyData := make([]byte, bodyLen)
+			if _, err := c.Conn.Read(bodyData); err != nil {
+				mlogger.MLogger.Error(err.Error())
+				break
+			}
+			//存储到message结构体
+			message.SetData(bodyData)
+		}
+		//构建Request结构体对象
 		req := &Request{
 			conn: c,
-			data: buf[:cnt],
+			msg:  message,
 		}
+
 		// 执行注册路由的方法
 		go func(request miface.IRequest) {
 			c.Router.PreHandle(request)
@@ -103,7 +118,20 @@ func (c *Connection) GetConnectionID() uint32 {
 	return c.ConnID
 }
 
-func (c *Connection) Send(data []byte) error {
-	//TODO implement me
-	panic("implement me")
+func (c *Connection) Send(msgId uint32, data []byte) error {
+	if c.isClosed {
+		return errors.New("Connection is closed")
+	}
+	msg := NewMessagePackage(msgId, data)
+	dp := NewDataPack()
+	bytesData, err := dp.Pack(msg)
+	if err != nil {
+		mlogger.MLogger.Error(err.Error())
+		return errors.New("Pack Error msg")
+	}
+	if _, err := c.Conn.Write(bytesData); err != nil {
+		mlogger.MLogger.Error(fmt.Sprintf("Write Error msg,msg id : %v,err: %v", msg.GetMsgID(), err))
+		return errors.New(fmt.Sprintf("Write Error msg,msg id : %v", msg.GetMsgID()))
+	}
+	return nil
 }

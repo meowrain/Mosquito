@@ -1,6 +1,9 @@
 package mnet
 
-import "fmt"
+import (
+	"fmt"
+	"mosquito/miface"
+)
 
 type Message struct {
 	Id      uint32 //消息ID
@@ -8,6 +11,13 @@ type Message struct {
 	Data    []byte //消息的内容
 }
 
+func NewMessagePackage(id uint32, data []byte) miface.IMessage {
+	return &Message{
+		Id:      id,
+		DataLen: uint32(len(data)),
+		Data:    data,
+	}
+}
 func (m *Message) GetMsgID() uint32 {
 	return m.Id
 }

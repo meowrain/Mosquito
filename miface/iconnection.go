@@ -7,14 +7,14 @@ type IConnection interface {
 	Start()
 	// Stop 关闭链接
 	Stop()
-	//获取链接
+	// GetTcpConnection 获取链接
 	GetTcpConnection() *net.TCPConn
-	//获取客户端地址
+	// GetRemoteAddr 获取客户端地址
 	GetRemoteAddr() net.Addr
-	//获取链接的ID
+	// GetConnectionID 获取链接的ID
 	GetConnectionID() uint32
-	//发送信息
-	Send(data []byte) error
+	// Send 发送信息
+	Send(uint32, []byte) error
 }
 
 // 定义一个处理链接业务的方法

@@ -58,7 +58,7 @@ func TestDataPackServer(t *testing.T) {
 }
 
 func TestDatapackClient(t *testing.T) {
-	conn, err := net.Dial("tcp", ":7777")
+	conn, err := net.Dial("tcp", ":8099")
 	if err != nil {
 		fmt.Println("server connect err:", err)
 	}
